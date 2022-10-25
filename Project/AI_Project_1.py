@@ -27,8 +27,8 @@ print ('hello world')
 #           Things we need for search algorithms:
 #           Start state, Operators, goal state
 #
-GoalState = npgettext.array([[1,1],[2,2]])
-InitialState = npgettext.array([[1,1],[2,2]])
+GoalState = np.array([[1,1],[2,2]])
+InitialState = np.array([[1,1],[2,2]])
 
 CheckingArray = (GoalState == InitialState).all()
 print (CheckingArray)
