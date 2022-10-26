@@ -44,22 +44,38 @@ class nodes:
         self.array = array
         #self.children = children
         #self.parents = parents
+        ChildCount = 0
+        pass
+    def getValue(self):
+        print(self.array)
+
+        pass
+    def createChildren(self):
+        
         pass
 
-def AStar(StartingState, QueueingFunction):
+def AStar(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
     failure = False
+    priority = 1
     QueueingFunction = PriorityQueue(0)
-    StartNode = nodes(StartingState)
-    QueueingFunction.put((1,StartNode))
-    while not failure:
-        if QueueingFunction.empty():
+    StartNode = nodes(StartingState)        #
+    QueueingFunction.put((priority,StartNode))     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
+    while not failure:                      #loop do
+        if QueueingFunction.empty():        #if EMPTY(nodes) then return "failure"
             failure = True
-        else:
-            print('we made it through')
-            failure = True
+            print("not a searchable state \n")
+            return False                            
+        print('we made it through')     
+        temp = QueueingFunction.get()       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        CheckingArray = (Goal == temp[1])     
+        if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
+            return temp
+        else:                               #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            
+
 
 Q = PriorityQueue(0)
-AStar(InitialState,Q)
+AStar(InitialState,Q,GoalState)
 
     
 
