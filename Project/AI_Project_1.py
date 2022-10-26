@@ -33,7 +33,7 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #                 Initial [1,0,3]
 #                         [4,2,5]
 #                         [7,8,6]
-InitialState = np.array([[1,0,3],[4,2,5],[7,8,6]]) #later on, make a function that'll randomize the initial state
+InitialState = np.array([[1,2,3],[4,0,5],[7,8,6]]) #later on, make a function that'll randomize the initial state
 
 #{x = np.where(InitialState == 0)       # random work to find out where the 0 is in the state
 #print(x)
@@ -58,12 +58,14 @@ InitialState = np.array([[1,0,3],[4,2,5],[7,8,6]]) #later on, make a function th
 #print(BlankRow.index(0))}
 
 class nodes:
-    def __init__(self,array):
-        self.array = array
+    def __init__(self,Array):
+        self.Array = Array
         #self.children = children
         #self.parents = parents
+        self.ChildArray=[]
+
         self.ChildCount = 0
-        tmp = np.where(array == 0)
+        tmp = np.where(Array == 0)
         self.BlankRow = tmp[0][0] #would output as an array with a single element, get the value byt doing BlankRow[0]
         self.BlankColumn = tmp[1][0]
         #find location of blank (0)
@@ -71,28 +73,64 @@ class nodes:
         
     def getValue(self):
         print(self.array)
+    def setParent(self, parent):
+        self.parent = parent
+    
+    def getChildCount(self):
+        return self.ChildCount
 
-        
-    def createChildren(self):
+    def createChildren(self): #create new arrays
         if (self.BlankRow)-1 >=0: #we can go up
+            temporary = self.Array
+            number = temporary[self.BlankRow-1][self.BlankColumn]
+            temporary[self.BlankRow-1][self.BlankColumn] = 0
+            temporary[self.BlankRow][self.BlankColumn] = number
+            self.ChildArray.append(temporary)
             print("we can go up")
             self.ChildCount+=1
+            print(self.Array)
+            print(temporary)
+
         if (self.BlankRow)+1 <=2: #we can go down
+            temporary = self.Array
+            number = temporary[self.BlankRow+1][self.BlankColumn]
+            temporary[self.BlankRow+1][self.BlankColumn] = 0
+            temporary[self.BlankRow][self.BlankColumn] = number
+            self.ChildArray.append(temporary)
             print("we can go down")
             self.ChildCount+=1
+            print(self.Array)
+            print(temporary)
+
         if (self.BlankColumn)-1 >=0: #we can go Left
+            temporary = self.Array
+            number = temporary[self.BlankRow][self.BlankColumn-1]
+            temporary[self.BlankRow][self.BlankColumn-1] = 0
+            temporary[self.BlankRow][self.BlankColumn] = number
+            self.ChildArray.append(temporary)
             print("we can go Left")
             self.ChildCount+=1
+            print(self.Array)
+            print(temporary)
+
         if (self.BlankColumn)+1 <=2: #we can go Right
+            temporary = self.Array
+            number = temporary[self.BlankRow][self.BlankColumn+1]
+            temporary[self.BlankRow][self.BlankColumn+1] = 0
+            temporary[self.BlankRow][self.BlankColumn] = number
+            self.ChildArray.append(temporary)
             print("we can go Right")
             self.ChildCount+=1
+            print(self.Array)
+            print(temporary)
+
         print("we can have " + str(self.ChildCount) + " children")
 
         
 
 def AStar(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
     failure = False
-    priority = 1
+    priority = 1 #this is essentially the f(n)
     QueueingFunction = PriorityQueue(0)
     StartNode = nodes(StartingState)        #
     QueueingFunction.put((priority,StartNode))     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
