@@ -1,4 +1,5 @@
 from gettext import npgettext
+from multiprocessing import dummy
 from queue import PriorityQueue
 import numpy as np
 
@@ -82,16 +83,16 @@ class nodes:
         return self.ChildCount
 
     def createChildren(self): #create new arrays
-        self.ChildArray=np.array([])
+        #self.ChildArray=np.array([])
         #currChild = 0
         if (self.BlankRow)-1 >=0: #we can go up
             temporary = np.copy(self.Array) # Normal equals doesn't work, it just a pass by reference
             number = temporary[self.BlankRow-1][self.BlankColumn]
             temporary[self.BlankRow-1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp = nodes(temporary)
-            tmp.setParent(self)
-            np.append(self.ChildArray,tmp)
+            tmp1 = nodes(temporary)
+            tmp1.setParent(self)
+            #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
             print("we can go up")
@@ -102,9 +103,9 @@ class nodes:
             number = temporary[self.BlankRow+1][self.BlankColumn]
             temporary[self.BlankRow+1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp = nodes(temporary)
-            tmp.setParent(self)
-            np.append(self.ChildArray,tmp)
+            tmp2 = nodes(temporary)
+            tmp2.setParent(self)
+            #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
             print("we can go down")
@@ -115,9 +116,9 @@ class nodes:
             number = temporary[self.BlankRow][self.BlankColumn-1]
             temporary[self.BlankRow][self.BlankColumn-1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp = nodes(temporary)
-            tmp.setParent(self)
-            np.append(self.ChildArray,tmp)
+            tmp3 = nodes(temporary)
+            tmp3.setParent(self)
+            #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
             print("we can go Left")
@@ -128,20 +129,22 @@ class nodes:
             number = temporary[self.BlankRow][self.BlankColumn+1]
             temporary[self.BlankRow][self.BlankColumn+1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp = nodes(temporary)
-            tmp.setParent(self)
-            np.append(self.ChildArray,tmp)
+            tmp4 = nodes(temporary)
+            tmp4.setParent(self)
+            #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
             print("we can go Right")
             self.ChildCount+=1
-        print(self.ChildArray)    
+        #print(self.ChildArray)    
+        self.ChildArray = np.array([tmp1,tmp2,tmp3,tmp4])
+        #print(self.ChildArray)
         print("we can have " + str(self.ChildCount) + " children")
     
     def getChild(self, number):
         return self.ChildArray[number]
-    #def printChild(self, number):
-    #    self.ChildArray[number].getValue()
+    def printChild(self, number):
+        self.ChildArray[number].getValue()
 
         
 
@@ -157,7 +160,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             print("not a searchable state \n")
             return False                            
         print('we made it through')
-        #print(QueueingFunction.queue)     
+        print(QueueingFunction.queue)     
         temp = QueueingFunction.get()       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
         print(temp)
         CheckingArray = (Goal == temp[1]).all()     
@@ -167,9 +170,11 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             priority+=1
             temp[1].createChildren()           #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
             for x in range(temp[1].getChildCount()):
-                #temp[1].printChild(x)
-                #dummyNode = temp[1].getChild(x)
-                QueueingFunction.put(priority, temp[1].getChild(x))
+                temp[1].printChild(x)
+                print(x)
+                dummy = temp[1].getChild(x)
+                QueueingFunction.put_nowait((priority,dummy ))
+                print(QueueingFunction.queue)
             
 
 
