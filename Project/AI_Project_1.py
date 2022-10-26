@@ -81,7 +81,7 @@ class nodes:
 
     def createChildren(self): #create new arrays
         if (self.BlankRow)-1 >=0: #we can go up
-            temporary = self.Array
+            temporary = np.copy(self.Array) # Normal equals doesn't work, it just a pass by reference
             number = temporary[self.BlankRow-1][self.BlankColumn]
             temporary[self.BlankRow-1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
@@ -92,7 +92,7 @@ class nodes:
             print(temporary)
 
         if (self.BlankRow)+1 <=2: #we can go down
-            temporary = self.Array
+            temporary = np.copy(self.Array)
             number = temporary[self.BlankRow+1][self.BlankColumn]
             temporary[self.BlankRow+1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
@@ -103,7 +103,7 @@ class nodes:
             print(temporary)
 
         if (self.BlankColumn)-1 >=0: #we can go Left
-            temporary = self.Array
+            temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn-1]
             temporary[self.BlankRow][self.BlankColumn-1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
@@ -114,7 +114,7 @@ class nodes:
             print(temporary)
 
         if (self.BlankColumn)+1 <=2: #we can go Right
-            temporary = self.Array
+            temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn+1]
             temporary[self.BlankRow][self.BlankColumn+1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
