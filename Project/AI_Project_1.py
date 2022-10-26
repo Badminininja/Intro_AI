@@ -74,8 +74,7 @@ class nodes:
     def getValue(self):
         print(self.array)
     def setParent(self, parent):
-        self.parent = parent
-    
+        self.parent = parent   
     def getChildCount(self):
         return self.ChildCount
 
@@ -85,46 +84,49 @@ class nodes:
             number = temporary[self.BlankRow-1][self.BlankColumn]
             temporary[self.BlankRow-1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            self.ChildArray.append(temporary)
+            tmp = nodes(temporary)
+            tmp.setParent(self)
+            self.ChildArray.append(tmp)
             print("we can go up")
-            self.ChildCount+=1
-            print(self.Array)
-            print(temporary)
+            self.ChildCount+=1           
 
         if (self.BlankRow)+1 <=2: #we can go down
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow+1][self.BlankColumn]
             temporary[self.BlankRow+1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            self.ChildArray.append(temporary)
+            tmp = nodes(temporary)
+            tmp.setParent(self)
+            self.ChildArray.append(tmp)
             print("we can go down")
             self.ChildCount+=1
-            print(self.Array)
-            print(temporary)
-
+            
         if (self.BlankColumn)-1 >=0: #we can go Left
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn-1]
             temporary[self.BlankRow][self.BlankColumn-1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            self.ChildArray.append(temporary)
+            tmp = nodes(temporary)
+            tmp.setParent(self)
+            self.ChildArray.append(tmp)
             print("we can go Left")
             self.ChildCount+=1
-            print(self.Array)
-            print(temporary)
-
+            
         if (self.BlankColumn)+1 <=2: #we can go Right
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn+1]
             temporary[self.BlankRow][self.BlankColumn+1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            self.ChildArray.append(temporary)
+            tmp = nodes(temporary)
+            tmp.setParent(self)
+            self.ChildArray.append(tmp)
             print("we can go Right")
             self.ChildCount+=1
-            print(self.Array)
-            print(temporary)
-
+            
         print("we can have " + str(self.ChildCount) + " children")
+    
+    def getChild(self, number):
+        return self.ChildArray[number]
 
         
 
@@ -139,13 +141,19 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             failure = True
             print("not a searchable state \n")
             return False                            
-        print('we made it through')     
+        print('we made it through')
+        print(QueueingFunction)     
         temp = QueueingFunction.get()       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        print(temp)
         CheckingArray = (Goal == temp[1]).all()     
         if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
             return temp
         else:
+            priority+=1
             temp[1].createChildren()           #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            for x in range(temp[1].getChildCount()):
+                #print(temp[1].getChild(x))
+                QueueingFunction.put(priority, temp[1].getChild(x))
             
 
 
