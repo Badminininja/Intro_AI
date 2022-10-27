@@ -1,11 +1,12 @@
-from gettext import npgettext
+#from gettext import npgettext
 #from multiprocessing import dummy
-from queue import PriorityQueue
-import heapq
-from tabnanny import check
+#from queue import PriorityQueue
+#import heapq
+#from tabnanny import check
 from typing import List
-from xml.dom.minidom import Childless
+#from xml.dom.minidom import Childless
 import numpy as np
+import time
 #from dataclasses import dataclass, field
 #from typing import Any
 
@@ -56,32 +57,11 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #                 Initial [1,2,3]
 #                         [4,0,5]
 #                         [7,8,6]
-#InitialState = np.array([[1,2,3],[0,5,6],[4,7,8]])
-InitialState = np.array([[1,2,3],[4,0,5],[7,8,6]]) #later on, make a function that'll randomize the initial state
-
-
-
-#{x = np.where(InitialState == 0)       # random work to find out where the 0 is in the state
-#print(x)
-#row = x[0]
-#column = x[1]
-
-#print(InitialState[row[0]][column[0]])
-#actualRow = x[0][0]
-#print(actualRow)
-#actualColoumn = x[1][0]
-#print(actualColoumn)
-#print(InitialState[actualRow][actualColoumn])
-#CheckingArray = (GoalState == InitialState).all()
-#print (CheckingArray) these can be used to check if its the goal state
-#       Failed numpy array is differnet from normal array
-#for row in InitialState:
-#    for element in row:
-#        if(element == 0):
-#            BlankRow = row
-#            BlankColoumn = element
-#print(InitialState.index(BlankRow))
-#print(BlankRow.index(0))}
+#later on, make a function that'll randomize the initial state
+InitialState = np.array([[1,2,3],[4,5,6],[0,7,8]]) #Depth 2
+InitialState = np.array([[1,2,3],[5,0,6],[4,7,8]]) #Depth 4
+#InitialState = np.array([[1,3,6],[5,0,2],[4,7,8]]) #Depth 8
+#InitialState = np.array([[0,7,2],[4,6,1],[3,5,8]]) #Depth 24
 
 class nodes:
     def __init__(self,Array):
@@ -176,7 +156,7 @@ class nodes:
 
         
 
-def AStar(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
+def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
     failure = False
     priority = 1 #this is essentially the f(n)
     #QueueingFunction = PriorityQueue(0)
@@ -189,7 +169,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             failure = True
             print("not a searchable state \n")
             return False                            
-        #print('we made it through')
+        #print('. . .')
         #print(QueueingFunction)
 
         index = 0
@@ -215,17 +195,51 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
                 #print(x)
                 dummy = PrioritizedItem(priority, temp.getData().getChild(x))
                 QueueingFunction.append(dummy)
-                #np.append(QueueingFunction,dummy)
-                #QueueingFunction.put((priority,dummy))
-                #QueueingFunction.task_done
-                #print(QueueingFunction.queue)
+                
             
+def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform but 
+    failure = False
+    priority = 1                                                #this is essentially the f(n)
+    StartNode = nodes(StartingState)        #
+    StartNode.setParent(StartNode)
+    QueueingFunction.append(PrioritizedItem(priority,StartNode))
+    while not failure:                                          #loop do
+        if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
+            failure = True
+            print("not a searchable state \n")
+            return False      
+        #print('. . .')                      
+        index = 0
+        for N in range(len(QueueingFunction)):
+            if(QueueingFunction[N].getPriority()<index):
+                index = N
+        temp = QueueingFunction[N]                              #node = REMOVE-FRONT(nodes)    
+        QueueingFunction.pop(N)
+        CheckingArray = (Goal == temp.getData().getArray()).all()     
+        if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
+            print("found it")
+            return temp.getData()
+        else:
+            priority+=1
+            Hn = 0                                         
+            temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            for x in range(temp.getData().getChildCount()):
+                for i in range(9):#can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
+                    checkTile = np.where(Goal == i)
+                    checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)
+                    if not (checkTile == checkTile2):
+                        Hn+=1
+                childPriority = priority+Hn
+                dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
+                QueueingFunction.append(dummy)
+                Hn = 0
 
 
-#Q = PriorityQueue(0)
-#Q = np.array([])
+
+
+startTime = time.time()
 Q = list(())
-answer = AStar(InitialState,Q,GoalState)
+answer = AstarMisplacedTile(InitialState,Q,GoalState)
 answer.printValue()
 print()
 while not((answer.getArray() == InitialState).all()):
@@ -233,7 +247,11 @@ while not((answer.getArray() == InitialState).all()):
     intermidiary.printValue()
     print()
     answer = answer.getParent()
-
+endTime = time.time()
+resultsInSeconds = (endTime - startTime)
+resultsInMinutes = ((endTime - startTime)/60)
+print("This took: " + str(resultsInSeconds) + " Seconds to run")
+print("This took: " + str(resultsInMinutes) + " minutes to run")
 
     
 
