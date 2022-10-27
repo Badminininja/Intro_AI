@@ -1,5 +1,5 @@
 from gettext import npgettext
-from multiprocessing import dummy
+#from multiprocessing import dummy
 from queue import PriorityQueue
 import numpy as np
 
@@ -162,6 +162,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
         print('we made it through')
         print(QueueingFunction.queue)     
         temp = QueueingFunction.get()       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        #QueueingFunction.task_done
         print(temp)
         CheckingArray = (Goal == temp[1]).all()     
         if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
@@ -173,7 +174,8 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
                 temp[1].printChild(x)
                 print(x)
                 dummy = temp[1].getChild(x)
-                QueueingFunction.put_nowait((priority,dummy ))
+                QueueingFunction.put_nowait((priority,dummy))
+                #QueueingFunction.task_done
                 print(QueueingFunction.queue)
             
 
