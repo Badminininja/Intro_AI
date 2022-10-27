@@ -1,7 +1,16 @@
 from gettext import npgettext
 #from multiprocessing import dummy
 from queue import PriorityQueue
+import heapq
 import numpy as np
+#from dataclasses import dataclass, field
+#from typing import Any
+
+#@dataclass(order=True)
+#class PrioritizedItem:
+#    priority: int
+#    item: Any=field(compare=False)
+
 
 print ('hello world')
 
@@ -174,7 +183,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
                 temp[1].printChild(x)
                 print(x)
                 dummy = temp[1].getChild(x)
-                QueueingFunction.put_nowait((priority,dummy))
+                QueueingFunction.put((priority,dummy))
                 #QueueingFunction.task_done
                 print(QueueingFunction.queue)
             
