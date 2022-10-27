@@ -7,9 +7,19 @@ import numpy as np
 #from typing import Any
 
 #@dataclass(order=True)
-#class PrioritizedItem:
-#    priority: int
-#    item: Any=field(compare=False)
+class PrioritizedItem:
+    #priority: int
+    #item: Any=field(compare=False)
+    def __init__(self, priority, data) -> None:
+        self.priority = priority
+        self.data = data
+        pass
+
+    def getPriority(self):
+        return self.priority
+
+    def getData(self):
+        return self.data
 
 
 print ('hello world')
@@ -83,7 +93,8 @@ class nodes:
         self.BlankColumn = tmp[1][0]
         #find location of blank (0)
 
-        
+    def getArray(self):
+        return self.Array    
     def getValue(self):
         print(self.Array)
     def setParent(self, parent):
@@ -160,36 +171,46 @@ class nodes:
 def AStar(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
     failure = False
     priority = 1 #this is essentially the f(n)
-    QueueingFunction = PriorityQueue(0)
+    #QueueingFunction = PriorityQueue(0)
     StartNode = nodes(StartingState)        #
-    QueueingFunction.put((priority,StartNode))     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
+    np.append(QueueingFunction, PrioritizedItem(priority,StartNode), axis=0)     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
     while not failure:                      #loop do
-        if QueueingFunction.empty():        #if EMPTY(nodes) then return "failure"
+        if QueueingFunction.size==0:        #if EMPTY(nodes) then return "failure"
             failure = True
             print("not a searchable state \n")
             return False                            
         print('we made it through')
-        print(QueueingFunction.queue)     
-        temp = QueueingFunction.get()       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        print(QueueingFunction)
+
+        index = 0
+        for N in range(QueueingFunction.size):
+            if(QueueingFunction[N].getPriority()<index):
+                index = N
+
+
+        temp = QueueingFunction[N]       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        np.delete(QueueingFunction,N, axis=0)
         #QueueingFunction.task_done
-        print(temp)
-        CheckingArray = (Goal == temp[1]).all()     
+        print(temp.getData())
+        CheckingArray = (Goal == temp.getData().getArray()).all()     
         if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
-            return temp
+            return temp.getData()
         else:
             priority+=1
-            temp[1].createChildren()           #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
-            for x in range(temp[1].getChildCount()):
-                temp[1].printChild(x)
-                print(x)
-                dummy = temp[1].getChild(x)
-                QueueingFunction.put((priority,dummy))
+            temp.getData().createChildren()           #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            for x in range(temp.getData().getChildCount()):
+                #temp[1].printChild(x)
+                #print(x)
+                dummy = PrioritizedItem(Priority, temp.getData().getChild(x))
+                np.append(QueueingFunction,dummy)
+                #QueueingFunction.put((priority,dummy))
                 #QueueingFunction.task_done
-                print(QueueingFunction.queue)
+                #print(QueueingFunction.queue)
             
 
 
-Q = PriorityQueue(0)
+#Q = PriorityQueue(0)
+Q = np.array([])
 AStar(InitialState,Q,GoalState)
 
     
