@@ -173,9 +173,10 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
     priority = 1 #this is essentially the f(n)
     #QueueingFunction = PriorityQueue(0)
     StartNode = nodes(StartingState)        #
-    np.append(QueueingFunction, PrioritizedItem(priority,StartNode), axis=0)     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
+    QueueingFunction.append(PrioritizedItem(priority,StartNode))
+    #np.append(QueueingFunction, PrioritizedItem(priority,StartNode), axis=0)     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
     while not failure:                      #loop do
-        if QueueingFunction.size==0:        #if EMPTY(nodes) then return "failure"
+        if len(QueueingFunction)==0:        #if EMPTY(nodes) then return "failure"
             failure = True
             print("not a searchable state \n")
             return False                            
@@ -183,17 +184,19 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
         print(QueueingFunction)
 
         index = 0
-        for N in range(QueueingFunction.size):
+        for N in range(len(QueueingFunction)):
             if(QueueingFunction[N].getPriority()<index):
                 index = N
 
 
         temp = QueueingFunction[N]       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
-        np.delete(QueueingFunction,N, axis=0)
+        QueueingFunction.pop(N)
+        #np.delete(QueueingFunction,N, axis=0)
         #QueueingFunction.task_done
         print(temp.getData())
         CheckingArray = (Goal == temp.getData().getArray()).all()     
         if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
+            print("found it")
             return temp.getData()
         else:
             priority+=1
@@ -201,8 +204,9 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             for x in range(temp.getData().getChildCount()):
                 #temp[1].printChild(x)
                 #print(x)
-                dummy = PrioritizedItem(Priority, temp.getData().getChild(x))
-                np.append(QueueingFunction,dummy)
+                dummy = PrioritizedItem(priority, temp.getData().getChild(x))
+                QueueingFunction.append(dummy)
+                #np.append(QueueingFunction,dummy)
                 #QueueingFunction.put((priority,dummy))
                 #QueueingFunction.task_done
                 #print(QueueingFunction.queue)
@@ -210,7 +214,8 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
 
 
 #Q = PriorityQueue(0)
-Q = np.array([])
+#Q = np.array([])
+Q = list(())
 AStar(InitialState,Q,GoalState)
 
     
