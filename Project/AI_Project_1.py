@@ -2,6 +2,8 @@ from gettext import npgettext
 #from multiprocessing import dummy
 from queue import PriorityQueue
 import heapq
+from typing import List
+from xml.dom.minidom import Childless
 import numpy as np
 #from dataclasses import dataclass, field
 #from typing import Any
@@ -53,6 +55,7 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #                 Initial [1,0,3]
 #                         [4,2,5]
 #                         [7,8,6]
+#InitialState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 InitialState = np.array([[1,2,3],[4,0,5],[7,8,6]]) #later on, make a function that'll randomize the initial state
 
 
@@ -84,7 +87,7 @@ class nodes:
         self.Array = Array
         #self.children = children
         #self.parents = parents
-        
+        self.ChildList=list(())
         
 
         self.ChildCount = 0
@@ -112,10 +115,11 @@ class nodes:
             temporary[self.BlankRow][self.BlankColumn] = number
             tmp1 = nodes(temporary)
             tmp1.setParent(self)
+            self.ChildList.append(tmp1)
             #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
-            print("we can go up")
+            #print("we can go up")
             self.ChildCount+=1           
 
         if (self.BlankRow)+1 <=2: #we can go down
@@ -125,10 +129,11 @@ class nodes:
             temporary[self.BlankRow][self.BlankColumn] = number
             tmp2 = nodes(temporary)
             tmp2.setParent(self)
+            self.ChildList.append(tmp2)
             #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
-            print("we can go down")
+            #print("we can go down")
             self.ChildCount+=1
             
         if (self.BlankColumn)-1 >=0: #we can go Left
@@ -138,10 +143,11 @@ class nodes:
             temporary[self.BlankRow][self.BlankColumn] = number
             tmp3 = nodes(temporary)
             tmp3.setParent(self)
+            self.ChildList.append(tmp3)
             #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
-            print("we can go Left")
+            #print("we can go Left")
             self.ChildCount+=1
             
         if (self.BlankColumn)+1 <=2: #we can go Right
@@ -151,20 +157,22 @@ class nodes:
             temporary[self.BlankRow][self.BlankColumn] = number
             tmp4 = nodes(temporary)
             tmp4.setParent(self)
+            self.ChildList.append(tmp4)
             #np.append(self.ChildArray,tmp)
             #np.insert(self.ChildArray,currChild,tmp)
             #currChild+=1
-            print("we can go Right")
+            #print("we can go Right")
             self.ChildCount+=1
         #print(self.ChildArray)    
-        self.ChildArray = np.array([tmp1,tmp2,tmp3,tmp4])
+        #self.ChildArray = np.array([tmp1,tmp2,tmp3,tmp4])
+        
         #print(self.ChildArray)
-        print("we can have " + str(self.ChildCount) + " children")
+        #print("we can have " + str(self.ChildCount) + " children")
     
     def getChild(self, number):
-        return self.ChildArray[number]
+        return self.ChildList[number]
     def printChild(self, number):
-        self.ChildArray[number].getValue()
+        self.ChildList[number].getValue()
 
         
 
@@ -181,7 +189,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             print("not a searchable state \n")
             return False                            
         print('we made it through')
-        print(QueueingFunction)
+        #print(QueueingFunction)
 
         index = 0
         for N in range(len(QueueingFunction)):
@@ -193,7 +201,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
         QueueingFunction.pop(N)
         #np.delete(QueueingFunction,N, axis=0)
         #QueueingFunction.task_done
-        print(temp.getData())
+        #print(temp.getData())
         CheckingArray = (Goal == temp.getData().getArray()).all()     
         if(CheckingArray ==True):           #if problem.GOAL-TEST(node.STATE) succeeds then return node
             print("found it")
