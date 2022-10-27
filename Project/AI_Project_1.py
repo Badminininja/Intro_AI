@@ -2,6 +2,7 @@ from gettext import npgettext
 #from multiprocessing import dummy
 from queue import PriorityQueue
 import heapq
+from tabnanny import check
 from typing import List
 from xml.dom.minidom import Childless
 import numpy as np
@@ -52,10 +53,10 @@ print ('hello world')
          
 GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #lets make an arbitrary initial state for now
-#                 Initial [1,0,3]
-#                         [4,2,5]
+#                 Initial [1,2,3]
+#                         [4,0,5]
 #                         [7,8,6]
-#InitialState = np.array([[1,2,3],[4,5,6],[7,8,0]])
+#InitialState = np.array([[1,2,3],[0,5,6],[4,7,8]])
 InitialState = np.array([[1,2,3],[4,0,5],[7,8,6]]) #later on, make a function that'll randomize the initial state
 
 
@@ -98,13 +99,13 @@ class nodes:
 
     def getArray(self):
         return self.Array    
-    def getValue(self):
+    def printValue(self):
         print(self.Array)
     def setParent(self, parent):
         self.parent = parent   
     def getChildCount(self):
         return self.ChildCount
-
+    
     def createChildren(self): #create new arrays
         #self.ChildArray=np.array([])
         #currChild = 0
@@ -113,56 +114,64 @@ class nodes:
             number = temporary[self.BlankRow-1][self.BlankColumn]
             temporary[self.BlankRow-1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp1 = nodes(temporary)
-            tmp1.setParent(self)
-            self.ChildList.append(tmp1)
-            #np.append(self.ChildArray,tmp)
-            #np.insert(self.ChildArray,currChild,tmp)
-            #currChild+=1
-            #print("we can go up")
-            self.ChildCount+=1           
+            checkParent = (temporary == self.parent.getArray()).all()
+            if not checkParent:
+                tmp = nodes(temporary)
+                tmp.setParent(self)
+                self.ChildList.append(tmp)
+                #np.append(self.ChildArray,tmp)
+                #np.insert(self.ChildArray,currChild,tmp)
+                #currChild+=1
+                print("we can go up")
+                self.ChildCount+=1           
 
         if (self.BlankRow)+1 <=2: #we can go down
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow+1][self.BlankColumn]
             temporary[self.BlankRow+1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp2 = nodes(temporary)
-            tmp2.setParent(self)
-            self.ChildList.append(tmp2)
-            #np.append(self.ChildArray,tmp)
-            #np.insert(self.ChildArray,currChild,tmp)
-            #currChild+=1
-            #print("we can go down")
-            self.ChildCount+=1
+            checkParent = (temporary == self.parent.getArray()).all()
+            if not checkParent:
+                tmp = nodes(temporary)
+                tmp.setParent(self)
+                self.ChildList.append(tmp)
+                #np.append(self.ChildArray,tmp)
+                #np.insert(self.ChildArray,currChild,tmp)
+                #currChild+=1
+                print("we can go down")
+                self.ChildCount+=1   
             
         if (self.BlankColumn)-1 >=0: #we can go Left
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn-1]
             temporary[self.BlankRow][self.BlankColumn-1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp3 = nodes(temporary)
-            tmp3.setParent(self)
-            self.ChildList.append(tmp3)
-            #np.append(self.ChildArray,tmp)
-            #np.insert(self.ChildArray,currChild,tmp)
-            #currChild+=1
-            #print("we can go Left")
-            self.ChildCount+=1
+            checkParent = (temporary == self.parent.getArray()).all()
+            if not checkParent:
+                tmp = nodes(temporary)
+                tmp.setParent(self)
+                self.ChildList.append(tmp)
+                #np.append(self.ChildArray,tmp)
+                #np.insert(self.ChildArray,currChild,tmp)
+                #currChild+=1
+                print("we can go left")
+                self.ChildCount+=1   
             
         if (self.BlankColumn)+1 <=2: #we can go Right
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn+1]
             temporary[self.BlankRow][self.BlankColumn+1] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            tmp4 = nodes(temporary)
-            tmp4.setParent(self)
-            self.ChildList.append(tmp4)
-            #np.append(self.ChildArray,tmp)
-            #np.insert(self.ChildArray,currChild,tmp)
-            #currChild+=1
-            #print("we can go Right")
-            self.ChildCount+=1
+            checkParent = (temporary == self.parent.getArray()).all()
+            if not checkParent:
+                tmp = nodes(temporary)
+                tmp.setParent(self)
+                self.ChildList.append(tmp)
+                #np.append(self.ChildArray,tmp)
+                #np.insert(self.ChildArray,currChild,tmp)
+                #currChild+=1
+                print("we can go Right")
+                self.ChildCount+=1   
         #print(self.ChildArray)    
         #self.ChildArray = np.array([tmp1,tmp2,tmp3,tmp4])
         
@@ -172,7 +181,7 @@ class nodes:
     def getChild(self, number):
         return self.ChildList[number]
     def printChild(self, number):
-        self.ChildList[number].getValue()
+        self.ChildList[number].printValue()
 
         
 
@@ -181,6 +190,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
     priority = 1 #this is essentially the f(n)
     #QueueingFunction = PriorityQueue(0)
     StartNode = nodes(StartingState)        #
+    StartNode.setParent(StartNode)
     QueueingFunction.append(PrioritizedItem(priority,StartNode))
     #np.append(QueueingFunction, PrioritizedItem(priority,StartNode), axis=0)     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
     while not failure:                      #loop do
@@ -197,7 +207,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
                 index = N
 
 
-        temp = QueueingFunction[N]       #node = REMOVE-FRONT(nodes)    temp[1].getValue() this is how we can print the values
+        temp = QueueingFunction[N]       #node = REMOVE-FRONT(nodes)    temp[1].printValue() this is how we can print the values
         QueueingFunction.pop(N)
         #np.delete(QueueingFunction,N, axis=0)
         #QueueingFunction.task_done
