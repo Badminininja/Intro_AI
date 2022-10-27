@@ -25,7 +25,7 @@ class PrioritizedItem:
         return self.data
 
 
-print ('hello world')
+#print ('hello world')
 
 #   https://www.codingem.com/numpy-compare-arrays/#:~:text=The%20easiest%20way%20to%20compare,if%20the%20elements%20are%20True. help for comparing arrays
 #   https://docs.python.org/3/library/queue.html The Queues
@@ -89,23 +89,20 @@ class nodes:
         #self.children = children
         #self.parents = parents
         self.ChildList=list(())
-        
-
         self.ChildCount = 0
         tmp = np.where(Array == 0)
         self.BlankRow = tmp[0][0] #would output as an array with a single element, get the value byt doing BlankRow[0]
-        self.BlankColumn = tmp[1][0]
-        #find location of blank (0)
-
+        self.BlankColumn = tmp[1][0]#find location of blank (0)
     def getArray(self):
         return self.Array    
     def printValue(self):
         print(self.Array)
     def setParent(self, parent):
         self.parent = parent   
+    def getParent(self):
+        return self.parent
     def getChildCount(self):
-        return self.ChildCount
-    
+        return self.ChildCount   
     def createChildren(self): #create new arrays
         #self.ChildArray=np.array([])
         #currChild = 0
@@ -122,7 +119,7 @@ class nodes:
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
                 #currChild+=1
-                print("we can go up")
+                #print("we can go up")
                 self.ChildCount+=1           
 
         if (self.BlankRow)+1 <=2: #we can go down
@@ -138,7 +135,7 @@ class nodes:
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
                 #currChild+=1
-                print("we can go down")
+                #print("we can go down")
                 self.ChildCount+=1   
             
         if (self.BlankColumn)-1 >=0: #we can go Left
@@ -154,7 +151,7 @@ class nodes:
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
                 #currChild+=1
-                print("we can go left")
+                #print("we can go left")
                 self.ChildCount+=1   
             
         if (self.BlankColumn)+1 <=2: #we can go Right
@@ -170,14 +167,8 @@ class nodes:
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
                 #currChild+=1
-                print("we can go Right")
+                #print("we can go Right")
                 self.ChildCount+=1   
-        #print(self.ChildArray)    
-        #self.ChildArray = np.array([tmp1,tmp2,tmp3,tmp4])
-        
-        #print(self.ChildArray)
-        #print("we can have " + str(self.ChildCount) + " children")
-    
     def getChild(self, number):
         return self.ChildList[number]
     def printChild(self, number):
@@ -198,7 +189,7 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
             failure = True
             print("not a searchable state \n")
             return False                            
-        print('we made it through')
+        #print('we made it through')
         #print(QueueingFunction)
 
         index = 0
@@ -234,7 +225,15 @@ def AStar(StartingState, QueueingFunction, Goal): #function general-search(probl
 #Q = PriorityQueue(0)
 #Q = np.array([])
 Q = list(())
-AStar(InitialState,Q,GoalState)
+answer = AStar(InitialState,Q,GoalState)
+answer.printValue()
+print()
+while not((answer.getArray() == InitialState).all()):
+    intermidiary = answer.getParent()
+    intermidiary.printValue()
+    print()
+    answer = answer.getParent()
+
 
     
 
