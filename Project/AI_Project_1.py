@@ -59,8 +59,11 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #                         [7,8,6]
 #later on, make a function that'll randomize the initial state
 #InitialState = np.array([[1,2,3],[4,5,6],[0,7,8]]) #Depth 2
-InitialState = np.array([[1,2,3],[5,0,6],[4,7,8]]) #Depth 4
+#InitialState = np.array([[1,2,3],[5,0,6],[4,7,8]]) #Depth 4
 #InitialState = np.array([[1,3,6],[5,0,2],[4,7,8]]) #Depth 8
+InitialState = np.array([[1,3,6],[5,0,7],[4,8,2]]) #Depth 12
+#InitialState = np.array([[1,6,7],[5,0,3],[4,8,2]]) #Depth 16
+#InitialState = np.array([[7,1,2],[4,8,5],[6,3,0]]) #Depth 20
 #InitialState = np.array([[0,7,2],[4,6,1],[3,5,8]]) #Depth 24
 
 class nodes:
@@ -167,19 +170,19 @@ def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(p
     while not failure:                      #loop do
         if len(QueueingFunction)==0:        #if EMPTY(nodes) then return "failure"
             failure = True
-            print("not a searchable state \n")
+            #print("not a searchable state \n")
             return False                            
         #print('. . .')
         #print(QueueingFunction)
 
         index = 0
         for N in range(len(QueueingFunction)):
-            if(QueueingFunction[N].getPriority()<index):
+            if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
+                print("found a smaller value")
                 index = N
-
-
-        temp = QueueingFunction[N]       #node = REMOVE-FRONT(nodes)    temp[1].printValue() this is how we can print the values
-        QueueingFunction.pop(N)
+        temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)
+        #print("looking through node with: " + str(QueueingFunction[index].getPriority()) + " Priority")    
+        QueueingFunction.pop(index)
         #np.delete(QueueingFunction,N, axis=0)
         #QueueingFunction.task_done
         #print(temp.getData())
@@ -219,10 +222,12 @@ def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
         #print('. . .')                      
         index = 0
         for N in range(len(QueueingFunction)):
-            if(QueueingFunction[N].getPriority()<index):
+            if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
+                #print("found a smaller value")
                 index = N
-        temp = QueueingFunction[N]                              #node = REMOVE-FRONT(nodes)    
-        QueueingFunction.pop(N)
+        temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)
+        #print("looking through node with: " + str(QueueingFunction[index].getPriority()) + " Priority")    
+        QueueingFunction.pop(index)
         CheckingArray = (Goal == temp.getData().getArray()).all()     
         if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
             print("found it")
@@ -263,12 +268,16 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
             return False      
         #print('. . .')                      
         index = 0
+        #for C in range(len(QueueingFunction)):
+        #    print(str(QueueingFunction[C].getPriority), end='')
+        #print()
         for N in range(len(QueueingFunction)):
-            if(QueueingFunction[N].getPriority()<index):
+            if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
+                #print("found a smaller value")
                 index = N
-        temp = QueueingFunction[N]                              #node = REMOVE-FRONT(nodes)
-        print("looking through node with: " + str(QueueingFunction[N].getPriority()) + " Priority")    
-        QueueingFunction.pop(N)
+        temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)
+        #print("looking through node with: " + str(QueueingFunction[index].getPriority()) + " Priority")    
+        QueueingFunction.pop(index)
         CheckingArray = (Goal == temp.getData().getArray()).all()     
         if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
             print("found it")
@@ -294,7 +303,7 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
                         column = abs(tile1Column - tile2Column)
                         Hn = Hn + row + column
                 childPriority = priority+Hn
-                print("creating child with: " + str(childPriority) + "priority")
+                #print("creating child with: " + str(childPriority) + "priority, where Priority is: " + str(priority) + " and Hn is " + str(Hn))
                 dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
                 isUnique = True
                 for j in range(len(UniqueList)):
@@ -308,7 +317,7 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
 startTime = time.time()
 Q = list(())
 #answer = AStarMisplacedTile(InitialState,Q,GoalState)
-answer = AStarManHatDist(InitialState,Q,GoalState)
+answer = AStarMisplacedTile(InitialState,Q,GoalState)
 answer.printValue()
 print()
 while not((answer.getArray() == InitialState).all()):
@@ -316,11 +325,11 @@ while not((answer.getArray() == InitialState).all()):
     intermidiary.printValue()
     print()
     answer = answer.getParent()
-#endTime = time.time()
-#resultsInSeconds = (endTime - startTime)
-#resultsInMinutes = ((endTime - startTime)/60)
-#print("This took: " + str(resultsInSeconds) + " Seconds to run")
-#print("This took: " + str(resultsInMinutes) + " minutes to run")
+endTime = time.time()
+resultsInSeconds = (endTime - startTime)
+resultsInMinutes = ((endTime - startTime)/60)
+print("This took: " + str(resultsInSeconds) + " Seconds to run")
+print("This took: " + str(resultsInMinutes) + " minutes to run")
 
     
 
