@@ -58,7 +58,7 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #                         [4,0,5]
 #                         [7,8,6]
 #later on, make a function that'll randomize the initial state
-InitialState = np.array([[1,2,3],[4,5,6],[0,7,8]]) #Depth 2
+#InitialState = np.array([[1,2,3],[4,5,6],[0,7,8]]) #Depth 2
 InitialState = np.array([[1,2,3],[5,0,6],[4,7,8]]) #Depth 4
 #InitialState = np.array([[1,3,6],[5,0,2],[4,7,8]]) #Depth 8
 #InitialState = np.array([[0,7,2],[4,6,1],[3,5,8]]) #Depth 24
@@ -164,6 +164,8 @@ def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(p
     StartNode.setParent(StartNode)
     QueueingFunction.append(PrioritizedItem(priority,StartNode))
     #np.append(QueueingFunction, PrioritizedItem(priority,StartNode), axis=0)     #nodes = MAKE-QUEUE(MAKE_NODE(problem.INITIAL-STATE))
+    UniqueList = list(())
+    UniqueList.append(PrioritizedItem(priority,StartNode))
     while not failure:                      #loop do
         if len(QueueingFunction)==0:        #if EMPTY(nodes) then return "failure"
             failure = True
@@ -193,8 +195,15 @@ def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(p
             for x in range(temp.getData().getChildCount()):
                 #temp[1].printChild(x)
                 #print(x)
+                
                 dummy = PrioritizedItem(priority, temp.getData().getChild(x))
-                QueueingFunction.append(dummy)
+                isUnique = True
+                for j in range(len(UniqueList)):
+                    chkArray = (UniqueList[j].getData().getArray() == temp.getData().getChild(x).getArray()).all()
+                    if(chkArray == True):
+                        isUnique = False
+                if(isUnique):
+                    QueueingFunction.append(dummy)
                 
             
 def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform but 
@@ -203,6 +212,8 @@ def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
     StartNode = nodes(StartingState)        #
     StartNode.setParent(StartNode)
     QueueingFunction.append(PrioritizedItem(priority,StartNode))
+    UniqueList = list(())
+    UniqueList.append(PrioritizedItem(priority,StartNode))
     while not failure:                                          #loop do
         if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
             failure = True
@@ -231,7 +242,13 @@ def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
                         Hn+=1
                 childPriority = priority+Hn
                 dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
-                QueueingFunction.append(dummy)
+                isUnique = True
+                for j in range(len(UniqueList)):
+                    chkArray = (UniqueList[j].getData().getArray() == temp.getData().getChild(x).getArray()).all()
+                    if(chkArray == True):
+                        isUnique = False
+                if(isUnique):
+                    QueueingFunction.append(dummy)
                 Hn = 0
 
 
