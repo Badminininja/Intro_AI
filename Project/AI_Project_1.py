@@ -154,8 +154,6 @@ class nodes:
     def printChild(self, number):
         self.ChildList[number].printValue()
 
-        
-
 def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
     failure = False
     priority = 1 #this is essentially the f(n)
@@ -204,9 +202,8 @@ def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(p
                         isUnique = False
                 if(isUnique):
                     QueueingFunction.append(dummy)
-                
-            
-def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform but 
+                      
+def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform but 
     failure = False
     priority = 1                                                #this is essentially the f(n)
     StartNode = nodes(StartingState)        #
@@ -235,7 +232,7 @@ def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
             Hn = 0                                         
             temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
             for x in range(temp.getData().getChildCount()):
-                for i in range(9):#can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
+                for i in range(1, 9):#can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
                     checkTile = np.where(Goal == i)
                     checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)
                     if not (checkTile == checkTile2):
@@ -251,12 +248,67 @@ def AstarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
                     QueueingFunction.append(dummy)
                 Hn = 0
 
-
-
+def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as previous
+    failure = False
+    priority = 1                                                #this is essentially the f(n)
+    StartNode = nodes(StartingState)        #
+    StartNode.setParent(StartNode)
+    QueueingFunction.append(PrioritizedItem(priority,StartNode))
+    UniqueList = list(())
+    UniqueList.append(PrioritizedItem(priority,StartNode))
+    while not failure:                                          #loop do
+        if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
+            failure = True
+            print("not a searchable state \n")
+            return False      
+        #print('. . .')                      
+        index = 0
+        for N in range(len(QueueingFunction)):
+            if(QueueingFunction[N].getPriority()<index):
+                index = N
+        temp = QueueingFunction[N]                              #node = REMOVE-FRONT(nodes)
+        print("looking through node with: " + str(QueueingFunction[N].getPriority()) + " Priority")    
+        QueueingFunction.pop(N)
+        CheckingArray = (Goal == temp.getData().getArray()).all()     
+        if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
+            print("found it")
+            return temp.getData()
+        else:
+            priority+=1
+            Hn = 0                                         
+            temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            for x in range(temp.getData().getChildCount()):
+                for i in range(1,9):#can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
+                    checkTile = np.where(Goal == i)
+                    checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)
+                    if not (checkTile == checkTile2):
+                        tile1Row = checkTile[0][0] #would output as an array with a single element, get the value byt doing BlankRow[0]
+                        #print(tile1Row)
+                        tile1Column = checkTile[1][0]#find location of element
+                        #print(tile1Column)
+                        tile2Row = checkTile2[0][0] #would output as an array with a single element, get the value byt doing BlankRow[0]
+                        #print(tile2Row)
+                        tile2Column = checkTile2[1][0]#find location of element
+                        #print(tile2Column)
+                        row = abs(tile1Row - tile2Row)
+                        column = abs(tile1Column - tile2Column)
+                        Hn = Hn + row + column
+                childPriority = priority+Hn
+                print("creating child with: " + str(childPriority) + "priority")
+                dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
+                isUnique = True
+                for j in range(len(UniqueList)):
+                    chkArray = (UniqueList[j].getData().getArray() == temp.getData().getChild(x).getArray()).all()
+                    if(chkArray == True):
+                        isUnique = False
+                if(isUnique):
+                    QueueingFunction.append(dummy)
+                Hn = 0
 
 startTime = time.time()
 Q = list(())
-answer = AstarMisplacedTile(InitialState,Q,GoalState)
+#answer = AStarMisplacedTile(InitialState,Q,GoalState)
+answer = AStarManHatDist(InitialState,Q,GoalState)
 answer.printValue()
 print()
 while not((answer.getArray() == InitialState).all()):
@@ -264,11 +316,11 @@ while not((answer.getArray() == InitialState).all()):
     intermidiary.printValue()
     print()
     answer = answer.getParent()
-endTime = time.time()
-resultsInSeconds = (endTime - startTime)
-resultsInMinutes = ((endTime - startTime)/60)
-print("This took: " + str(resultsInSeconds) + " Seconds to run")
-print("This took: " + str(resultsInMinutes) + " minutes to run")
+#endTime = time.time()
+#resultsInSeconds = (endTime - startTime)
+#resultsInMinutes = ((endTime - startTime)/60)
+#print("This took: " + str(resultsInSeconds) + " Seconds to run")
+#print("This took: " + str(resultsInMinutes) + " minutes to run")
 
     
 
