@@ -306,6 +306,9 @@ match algo:
         answer = AStarMisplacedTile(InitialState, Q, GoalState)
     case '3':
         answer = AStarMisplacedTile(InitialState,Q,GoalState)
+    case _:
+        print("ERROR, not one of the given algorithms. Exiting. . .")
+        quit()
 depth = answer.Gn
 outputList = list(())
 outputList.append(answer)
