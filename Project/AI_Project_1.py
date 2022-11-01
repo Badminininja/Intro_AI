@@ -61,14 +61,16 @@ GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 #InitialState = np.array([[1,2,3],[4,5,6],[0,7,8]]) #Depth 2
 #InitialState = np.array([[1,2,3],[5,0,6],[4,7,8]]) #Depth 4
 #InitialState = np.array([[1,3,6],[5,0,2],[4,7,8]]) #Depth 8
-InitialState = np.array([[1,3,6],[5,0,7],[4,8,2]]) #Depth 12
+#InitialState = np.array([[1,3,6],[5,0,7],[4,8,2]]) #Depth 12
 #InitialState = np.array([[1,6,7],[5,0,3],[4,8,2]]) #Depth 16
 #InitialState = np.array([[7,1,2],[4,8,5],[6,3,0]]) #Depth 20
-#InitialState = np.array([[0,7,2],[4,6,1],[3,5,8]]) #Depth 24
+InitialState = np.array([[0,7,2],[4,6,1],[3,5,8]]) #Depth 24
 
 class nodes:
     def __init__(self,Array):
         self.Array = Array
+        self.Gn = 1 #depth
+        self.Hn = 0 #estimated cost to goal
         #self.children = children
         #self.parents = parents
         self.ChildList=list(())
@@ -98,6 +100,7 @@ class nodes:
             if not checkParent:
                 tmp = nodes(temporary)
                 tmp.setParent(self)
+                tmp.Gn = self.Gn + 1
                 self.ChildList.append(tmp)
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
@@ -114,6 +117,7 @@ class nodes:
             if not checkParent:
                 tmp = nodes(temporary)
                 tmp.setParent(self)
+                tmp.Gn = self.Gn + 1
                 self.ChildList.append(tmp)
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
@@ -130,6 +134,7 @@ class nodes:
             if not checkParent:
                 tmp = nodes(temporary)
                 tmp.setParent(self)
+                tmp.Gn = self.Gn + 1
                 self.ChildList.append(tmp)
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
@@ -146,6 +151,7 @@ class nodes:
             if not checkParent:
                 tmp = nodes(temporary)
                 tmp.setParent(self)
+                tmp.Gn = self.Gn + 1
                 self.ChildList.append(tmp)
                 #np.append(self.ChildArray,tmp)
                 #np.insert(self.ChildArray,currChild,tmp)
@@ -255,12 +261,12 @@ def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
 
 def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as previous
     failure = False
-    priority = 1                                                #this is essentially the f(n)
+    #priority = 1                                                #this is essentially the f(n)
     StartNode = nodes(StartingState)        #
     StartNode.setParent(StartNode)
-    QueueingFunction.append(PrioritizedItem(priority,StartNode))
+    QueueingFunction.append(PrioritizedItem(StartNode.Gn,StartNode))
     UniqueList = list(())
-    UniqueList.append(PrioritizedItem(priority,StartNode))
+    UniqueList.append(PrioritizedItem(StartNode.Gn,StartNode))
     while not failure:                                          #loop do
         if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
             failure = True
@@ -283,8 +289,8 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
             print("found it")
             return temp.getData()
         else:
-            priority+=1
-            Hn = 0                                         
+            #priority+=1
+            Hntmp = 0                                         
             temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
             for x in range(temp.getData().getChildCount()):
                 for i in range(1,9):#can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
@@ -301,9 +307,10 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
                         #print(tile2Column)
                         row = abs(tile1Row - tile2Row)
                         column = abs(tile1Column - tile2Column)
-                        Hn = Hn + row + column
-                childPriority = priority+Hn
-                #print("creating child with: " + str(childPriority) + "priority, where Priority is: " + str(priority) + " and Hn is " + str(Hn))
+                        Hntmp = Hntmp + row + column
+                temp.getData().getChild(x).Hn = Hntmp
+                childPriority = temp.getData().getChild(x).Gn + Hntmp
+                print("creating child with: " + str(childPriority) + "priority, where Gn is: " + str(temp.getData().getChild(x).Gn) + " and Hn is " + str(temp.getData().getChild(x).Hn))
                 dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
                 isUnique = True
                 for j in range(len(UniqueList)):
@@ -312,12 +319,12 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
                         isUnique = False
                 if(isUnique):
                     QueueingFunction.append(dummy)
-                Hn = 0
+                Hntmp = 0
 
 startTime = time.time()
 Q = list(())
 #answer = AStarMisplacedTile(InitialState,Q,GoalState)
-answer = AStarMisplacedTile(InitialState,Q,GoalState)
+answer = AStarManHatDist(InitialState,Q,GoalState)
 answer.printValue()
 print()
 while not((answer.getArray() == InitialState).all()):
