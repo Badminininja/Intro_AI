@@ -283,8 +283,29 @@ if(menu == '1'):
         case '7':
             InitialState = InitialState7
 elif(menu == '2'):
-    print("type the puzzle")
-answer = AStarMisplacedTile(InitialState,Q,GoalState)
+    print("Enter your puzzle where the 0 is considered the blank space and delimit your numbers with a comma only. Use only valid 8-puzzles otherwise it will take a while to go through the entire search space")
+    createdArray1 = input("enter the first row: ")
+    first = int(createdArray1[0])
+    second = int(createdArray1[2])
+    third = int(createdArray1[4])
+    createdArray2 = input("enter the second row: ")
+    fourth = int(createdArray2[0])
+    fifth = int(createdArray2[2])
+    sixth = int(createdArray2[4])
+    createdArray3 = input("enter the third row: ")
+    seventh = int(createdArray3[0])
+    eighth = int(createdArray3[2])
+    ninth = int(createdArray3[4])
+    InitialState = np.array([[first,second,third],[fourth,fifth,sixth],[seventh,eighth,ninth]])
+
+algo = input("Now please enter the number for the algorithm you want to use to solve it with. Uniform Cost Search with (1), A* with Misplaced Tile Heuristic with (2), or A* with Manhattan Distance Heuristic with (3)\n")
+match algo:
+    case '1':
+        answer = UniformCS(InitialState,Q,GoalState)
+    case '2':
+        answer = AStarMisplacedTile(InitialState, Q, GoalState)
+    case '3':
+        answer = AStarMisplacedTile(InitialState,Q,GoalState)
 depth = answer.Gn
 outputList = list(())
 outputList.append(answer)
