@@ -1,8 +1,5 @@
-from typing import List
 import numpy as np
-import time
-
-class PrioritizedItem:
+class PrioritizedItem: #made a simple class for tuples where the first element is the cost and the second is the node
 
     def __init__(self, priority, data) -> None:
         self.priority = priority
@@ -14,26 +11,21 @@ class PrioritizedItem:
 
     def getData(self):
         return self.data
-#   https://www.codingem.com/numpy-compare-arrays/#:~:text=The%20easiest%20way%20to%20compare,if%20the%20elements%20are%20True. help for comparing arrays
-#   https://docs.python.org/3/library/queue.html The Queues
 
 maxQueSize = 0
 nodesExpanded = 0
 GoalState = np.array([[1,2,3],[4,5,6],[7,8,0]])
 
-#later on, make a function that'll randomize the initial state
-
-
-class nodes:
+class nodes:                            #class where I can have my state's contain their own individual information
     def __init__(self,Array):
         self.Array = Array
-        self.Gn = 0 #depth
-        self.Hn = 0 #estimated cost to goal
-        self.ChildList=list(())
-        self.ChildCount = 0
-        tmp = np.where(Array == 0)
-        self.BlankRow = tmp[0][0] #would output as an array with a single element, get the value byt doing BlankRow[0]
-        self.BlankColumn = tmp[1][0]#find location of blank (0)
+        self.Gn = 0                     #essentially the depth in this scenerio
+        self.Hn = 0                     #estimated cost to goal, The heuristic cost
+        self.ChildList=list(())         #list to hold the children
+        self.ChildCount = 0             #Basic record of the amount of children
+        tmp = np.where(Array == 0)      #find location of blank (0)
+        self.BlankRow = tmp[0][0]       #and record it's row 
+        self.BlankColumn = tmp[1][0]    #and record it's column
     def getArray(self):
         return self.Array    
     def printValue(self):
@@ -44,21 +36,21 @@ class nodes:
         return self.parent
     def getChildCount(self):
         return self.ChildCount   
-    def createChildren(self): #create new arrays
+    def createChildren(self): #create new children arrays
         if (self.BlankRow)-1 >=0: #we can go up
-            temporary = np.copy(self.Array) # Normal equals doesn't work, it just a pass by reference
-            number = temporary[self.BlankRow-1][self.BlankColumn]
+            temporary = np.copy(self.Array)                             # Normal equals doesn't work, it just a pass by reference
+            number = temporary[self.BlankRow-1][self.BlankColumn]       #switching the element we want the blank to move to with each other
             temporary[self.BlankRow-1][self.BlankColumn] = 0
             temporary[self.BlankRow][self.BlankColumn] = number
-            checkParent = (temporary == self.parent.getArray()).all()
-            if not checkParent:
-                tmp = nodes(temporary)
-                tmp.setParent(self)
-                tmp.Gn = self.Gn + 1
-                self.ChildList.append(tmp)
-                self.ChildCount+=1           
+            checkParent = (temporary == self.parent.getArray()).all()   #check that the movement doesn't create a copy of its parent 
+            if not checkParent:                                         #(make sure it doesn't just go up and down repeatedly forever)
+                tmp = nodes(temporary)              #turn the array into a node object so it follows suit
+                tmp.setParent(self)                 #set the parent
+                tmp.Gn = self.Gn + 1                #increment the depth
+                self.ChildList.append(tmp)          #append the child to the child list
+                self.ChildCount+=1                  #increment the child count as we have created a new child
 
-        if (self.BlankRow)+1 <=2: #we can go down
+        if (self.BlankRow)+1 <=2: #we can go down, Same logic as previous but for different movement
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow+1][self.BlankColumn]
             temporary[self.BlankRow+1][self.BlankColumn] = 0
@@ -71,7 +63,7 @@ class nodes:
                 self.ChildList.append(tmp)
                 self.ChildCount+=1   
             
-        if (self.BlankColumn)-1 >=0: #we can go Left
+        if (self.BlankColumn)-1 >=0: #we can go Left, Same logic as previous but for different movement
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn-1]
             temporary[self.BlankRow][self.BlankColumn-1] = 0
@@ -84,7 +76,7 @@ class nodes:
                 self.ChildList.append(tmp)
                 self.ChildCount+=1   
             
-        if (self.BlankColumn)+1 <=2: #we can go Right
+        if (self.BlankColumn)+1 <=2: #we can go Right, Same logic as previous but for different movement
             temporary = np.copy(self.Array)
             number = temporary[self.BlankRow][self.BlankColumn+1]
             temporary[self.BlankRow][self.BlankColumn+1] = 0
@@ -102,23 +94,23 @@ class nodes:
         self.ChildList[number].printValue()
 
 def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(problem, QUEUEING-FUNCTION)
-    failure = False
-    global maxQueSize
-    global nodesExpanded
-    StartNode = nodes(StartingState)        #
+    failure = False                                                 #this isn't that useful, but it makes sure that the loop won't continue if we ever find that it's not a valid puzzle
+    global maxQueSize                                               
+    global nodesExpanded                                            
+    StartNode = nodes(StartingState)                                #create the first node
     StartNode.setParent(StartNode)
-    QueueingFunction.append(PrioritizedItem(StartNode.Gn,StartNode))
-    UniqueList = list(())
+    QueueingFunction.append(PrioritizedItem(StartNode.Gn,StartNode))#append the first node to start the queueing function
+    UniqueList = list(())                                           #create a list to record unique states so that we don't repeat any states
     UniqueList.append(PrioritizedItem(StartNode.Gn,StartNode))
     while not failure:                                              #loop do
         if len(QueueingFunction)==0:                                #if EMPTY(nodes) then return "failure"
             failure = True
             print("not a searchable state \n")
             return False                            
-        if len(QueueingFunction)>maxQueSize:
+        if len(QueueingFunction)>maxQueSize:                        #if the max queue size got bigger, record it
             maxQueSize = len(QueueingFunction)
         index = 0
-        for N in range(len(QueueingFunction)):
+        for N in range(len(QueueingFunction)):                      #choosing the node with the lowest cost/priority
             if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
                 index = N
         temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)
@@ -128,16 +120,16 @@ def UniformCS(StartingState, QueueingFunction, Goal): #function general-search(p
             return temp.getData()
         else:
             temp.getData().createChildren()                         #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
-            for x in range(temp.getData().getChildCount()):
+            for x in range(temp.getData().getChildCount()):         #loop through the children list of the node
                 dummy = PrioritizedItem(temp.getData().getChild(x).Gn, temp.getData().getChild(x))
                 isUnique = True
-                for j in range(len(UniqueList)):
+                for j in range(len(UniqueList)):                    #make sure the new children nodes are not repeated states
                     chkArray = (UniqueList[j].getData().getArray() == temp.getData().getChild(x).getArray()).all()
                     if(chkArray == True):
                         isUnique = False
-                if(isUnique):
-                    nodesExpanded+=1
-                    QueueingFunction.append(dummy)
+                if(isUnique):                                       #
+                    nodesExpanded+=1                                #if they are unique, increment nodesExpanded
+                    QueueingFunction.append(dummy)                  #add the child node to the queue and repeat the loop
                       
 def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform but with new g(n)
     failure = False
@@ -148,8 +140,8 @@ def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
     QueueingFunction.append(PrioritizedItem(StartNode.Gn,StartNode))
     UniqueList = list(())
     UniqueList.append(PrioritizedItem(StartNode.Gn,StartNode))
-    while not failure:                                          #loop do
-        if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
+    while not failure:                                          
+        if len(QueueingFunction)==0:                            
             failure = True
             print("not a searchable state \n")
             return False        
@@ -159,23 +151,23 @@ def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
         for N in range(len(QueueingFunction)):
             if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
                 index = N
-        temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)  
+        temp = QueueingFunction[index]                                
         QueueingFunction.pop(index)
         CheckingArray = (Goal == temp.getData().getArray()).all()     
-        if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
+        if(CheckingArray ==True):                               
             return temp.getData()
         else:
-            Hntmp = 0                                         
-            temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            Hntmp = 0                                           #set h(n) to 0 
+            temp.getData().createChildren()                     
             for x in range(temp.getData().getChildCount()):
                 for i in range(1, 9):                           #can change to arbitrary puzzle  ******THE MAIN CHANGE, CALCULATE H(N)**************
-                    checkTile = np.where(Goal == i)
-                    checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)
-                    if not (checkTile == checkTile2):
-                        Hntmp+=1
+                    checkTile = np.where(Goal == i)                                     #loop through all the numbers and find where that number is for the goal
+                    checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)   #and for the new child being created
+                    if not (checkTile == checkTile2):                                   #if its a misplaced tile
+                        Hntmp+=1                                                        #   increment the h(n) and loop through the rest of the numbers
                 temp.getData().getChild(x).Hn = Hntmp
-                childPriority = temp.getData().getChild(x).Gn + Hntmp
-                dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
+                childPriority = temp.getData().getChild(x).Gn + Hntmp                   #add the g(n)/depth to the h(n) as a single number priority/cost
+                dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))      #create a tuple for the queue with that cost and child
                 isUnique = True
                 for j in range(len(UniqueList)):
                     chkArray = (UniqueList[j].getData().getArray() == temp.getData().getChild(x).getArray()).all()
@@ -184,19 +176,19 @@ def AStarMisplacedTile(StartingState, QueueingFunction, Goal): #same as uniform 
                 if(isUnique):
                     nodesExpanded+=1
                     QueueingFunction.append(dummy)
-                Hntmp = 0
+                Hntmp = 0                                       #reset h(n) to 0 for next possible child
 
-def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as previous
+def AStarManHatDist(StartingState, QueueingFunction, Goal): #same as misplaced but with more calculation on g(n)
     failure = False
     global maxQueSize
     global nodesExpanded
-    StartNode = nodes(StartingState)        #
+    StartNode = nodes(StartingState)        
     StartNode.setParent(StartNode)
     QueueingFunction.append(PrioritizedItem(StartNode.Gn,StartNode))
     UniqueList = list(())
     UniqueList.append(PrioritizedItem(StartNode.Gn,StartNode))
-    while not failure:                                          #loop do
-        if len(QueueingFunction)==0:                            #if EMPTY(nodes) then return "failure"
+    while not failure:                                          
+        if len(QueueingFunction)==0:                            
             failure = True
             print("not a searchable state \n")
             return False
@@ -207,26 +199,26 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
         for N in range(len(QueueingFunction)):
             if(int(QueueingFunction[N].getPriority())<int(QueueingFunction[index].getPriority())):
                 index = N
-        temp = QueueingFunction[index]                              #node = REMOVE-FRONT(nodes)
+        temp = QueueingFunction[index]                              
         QueueingFunction.pop(index)
         CheckingArray = (Goal == temp.getData().getArray()).all()     
-        if(CheckingArray ==True):                               #if problem.GOAL-TEST(node.STATE) succeeds then return node
+        if(CheckingArray ==True):                               
             return temp.getData()
         else:
             Hntmp = 0                                         
-            temp.getData().createChildren()                     #nodes = QUEUEING-FUNCTION(nodes, EXPAND(nod,problem.OPERATORS))
+            temp.getData().createChildren()                     
             for x in range(temp.getData().getChildCount()):
                 for i in range(1,9):    
                     checkTile = np.where(Goal == i)
                     checkTile2 = np.where(temp.getData().getChild(x).getArray() == i)
-                    if not (checkTile == checkTile2):
-                        tile1Row = checkTile[0][0] 
-                        tile1Column = checkTile[1][0]
-                        tile2Row = checkTile2[0][0]
+                    if not (checkTile == checkTile2):                               #*****THE CHANGE FROM MISPLACED TILES*****
+                        tile1Row = checkTile[0][0]                                  #instead of simply incrementing the h(n) cost for each misplaced tile
+                        tile1Column = checkTile[1][0]                               #I find the exact row and column of that number for both the goal state
+                        tile2Row = checkTile2[0][0]                                 #and the new child state
                         tile2Column = checkTile2[1][0]
-                        row = abs(tile1Row - tile2Row)
+                        row = abs(tile1Row - tile2Row)                              #find how far that element needs to travel to get to the element in the goal state
                         column = abs(tile1Column - tile2Column)
-                        Hntmp = Hntmp + row + column
+                        Hntmp = Hntmp + row + column                                #then add those totals to the h(n) and repeat for all the other elements in the puzzle
                 temp.getData().getChild(x).Hn = Hntmp
                 childPriority = temp.getData().getChild(x).Gn + Hntmp
                 dummy = PrioritizedItem(childPriority, temp.getData().getChild(x))
@@ -240,7 +232,7 @@ def AStarManHatDist(StartingState, QueueingFunction, Goal): #majority same as pr
                     QueueingFunction.append(dummy)
                 Hntmp = 0
 
-startTime = time.time()
+
 depth = 0
 Q = list(())
 menu = input("Welcome to Joseph's 8-puzzle solver. Type '1' for a hard-coded puzzle, or '2' to create you're own\n") #this looks similar to the example shown on the project example for simplicity and clarity
@@ -305,7 +297,7 @@ match algo:
     case '2':
         answer = AStarMisplacedTile(InitialState, Q, GoalState)
     case '3':
-        answer = AStarMisplacedTile(InitialState,Q,GoalState)
+        answer = AStarManHatDist(InitialState,Q,GoalState)
     case _:
         print("ERROR, not one of the given algorithms. Exiting. . .")
         quit()
@@ -313,12 +305,12 @@ depth = answer.Gn
 outputList = list(())
 outputList.append(answer)
 print()
-while not((answer.getArray() == InitialState).all()):
-    intermidiary = answer.getParent()
-    outputList.append(intermidiary)
+while not((answer.getArray() == InitialState).all()):   #create an output list and append the outputs to it
+    intermidiary = answer.getParent()                   #we can trace the route of the algorithm by going backwards
+    outputList.append(intermidiary)                     #and looking through the parents of the nodes until we hit the initial state
     answer = answer.getParent()
 
-for i in reversed(outputList):
+for i in reversed(outputList):                          #output the list in reverse to see the list in proper order from top to bottom
     print("The best state to expand with a g(n) = " + str(i.Gn) + " and h(n) = " + str(i.Hn) + " is?")
     i.printValue()
     print()
